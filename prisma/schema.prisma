@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @default("")
+  category String @default("")
+  unit_price Float @default(0)
+  sale_price Float @default(0)
+  barcode String? @default("") @unique
+  quantity Int @default(0)
+  product_image String @default("")
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+  user_id String @db.ObjectId
+
+  employee Employee? @relation(fields: [employee_id], references: [id])
+  employee_id String? @db.ObjectId
+
+  movementations Movementation[]
+
+  @@map("items")
+}
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @default("")
+  email String @default("") @unique
+  confirmed_email Boolean @default(false)
+  password String @default("")
+  is_assinant Boolean @default(false)
+  is_trial Boolean @default(false)
+  type Int @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  item Item[]
+  movemetations Movementation[]
+  clients Client[]
+  employee Employee[]
+
+  @@map("users")
+}
+
+model Movementation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  move_type String @default("")
+  quantity Int @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  item Item? @relation(fields: [item_id], references: [id])
+  item_id String? @db.ObjectId
+
+  user User? @relation(fields: [user_id], references: [id])
+  user_id String? @db.ObjectId
+
+  employee Employee? @relation(fields: [employee_id], references: [id])
+  employee_id String? @db.ObjectId
+
+  @@map("movementations")
+}
+
+model Client {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  lastname String
+  age Int
+  email String @unique
+  sex String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+  user_id String @db.ObjectId
+
+  address ClientAddress[]
+
+  @@map("clients")
+}
+
+model ClientAddress {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  street String
+  house_number Int
+  neighborhood String
+  postal_code String
+  country String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  user Client @relation(fields: [client_id], references: [id])
+  client_id String @db.ObjectId @unique
+
+  @@map("clientAddresses")
+}
+
+model Employee {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  lastname String
+  email String @unique
+  type Int
+  password String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+  user_id String @db.ObjectId
+
+  item Item[]
+  movementation Movementation[]
+
+  @@map("employees")
+}
+
+model Category {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  value String
+  created_at DateTime @default(now())
+  updated_at DateTime?
+
+  @@map("categories")
+}
