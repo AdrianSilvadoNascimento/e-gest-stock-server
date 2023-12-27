@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 
 import { AppService } from './app.service';
@@ -26,9 +27,10 @@ import { EmployeeController } from './controllers/admin/employee/employee.contro
 import { EmployeeService } from './services/admin/employee/employee.service';
 import { EmployeeRepository } from './repositories/admin/employee-repositories/employee-repositories';
 import { EmployeePrismaRepositories } from './repositories/prisma/admin/employee-prisma-repositories/employee-prisma-repositories';
+import { AuthMiddleware } from './utils/auth-middleware/auth-middleware';
 
 @Module({
-  imports: [],
+  imports: [ConfigModule.forRoot()],
   controllers: [
     AppController,
     UserController,
@@ -45,6 +47,7 @@ import { EmployeePrismaRepositories } from './repositories/prisma/admin/employee
     ClientService,
     EmployeeService,
     ItemService,
+    EmployeeService,
     {
       provide: APP_FILTER,
       useClass: NotFoundExceptionFilter,
@@ -69,7 +72,15 @@ import { EmployeePrismaRepositories } from './repositories/prisma/admin/employee
       provide: EmployeeRepository,
       useClass: EmployeePrismaRepositories,
     },
-    EmployeeService
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes(
+      'item/*',
+      'admin/*',
+      'client/*',
+      'movementation/*'
+    );
+  }
+}

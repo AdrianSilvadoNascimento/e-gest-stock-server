@@ -4,7 +4,7 @@ import { ItemService } from '../../services/item/item.service';
 import { ItemEntity } from '../../entity/item.entity';
 import { ItemModel } from '../../dtos/item-model';
 
-@Controller()
+@Controller('item')
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
   
