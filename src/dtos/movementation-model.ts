@@ -19,7 +19,6 @@ export class MovementationModel {
   user_id?: string;
   user?: UserModel;
 
-  @IsNotEmpty()
   employee_id?: string;
   employee?: EmployeeModel;
 

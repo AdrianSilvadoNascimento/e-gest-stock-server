@@ -115,7 +115,7 @@ model Employee {
   updated_at DateTime?
 
   user User @relation(fields: [user_id], references: [id])
-  user_id String @db.ObjectId
+  user_id String @db.ObjectId @unique
 
   item Item[]
   movementation Movementation[]

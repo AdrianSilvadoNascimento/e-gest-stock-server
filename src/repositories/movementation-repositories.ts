@@ -4,6 +4,6 @@ import { ItemEntity } from "../entity/item.entity";
 
 export abstract class MovementationRepository {
   abstract getMovementations(userId: string): Promise<MovementationEntity[]>
-  abstract move(userId: string, itemId: string, body: MovementationModel): Promise<ItemEntity>
+  abstract move(movementationModel: MovementationModel): Promise<ItemEntity>
   abstract deleteMovementation(movementationId: string): Promise<MovementationEntity>
 }

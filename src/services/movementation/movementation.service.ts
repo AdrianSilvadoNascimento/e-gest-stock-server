@@ -13,8 +13,8 @@ export class MovementationService {
     return await this.movementationRepository.getMovementations(userId)
   }
 
-  async move(userId: string, itemId: string, body: MovementationModel): Promise<ItemEntity> {
-    return await this.movementationRepository.move(userId, itemId, body)
+  async move(movementationModel: MovementationModel): Promise<ItemEntity> {
+    return await this.movementationRepository.move(movementationModel)
   }
 
   async deleteMovementation(movementationId: string): Promise<MovementationEntity> {

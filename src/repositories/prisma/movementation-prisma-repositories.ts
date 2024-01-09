@@ -1,13 +1,19 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 
 import { MovementationRepository } from "../movementation-repositories";
 import { MovementationModel } from "../../dtos/movementation-model";
 import { PrismaService } from "../../database/prisma.service";
 import { MovementationEntity } from "../../entity/movementation.entity";
 import { ItemEntity } from "../../entity/item.entity";
+import { Utils } from "../../utils/messages/utils";
+import { ItemModel } from "src/dtos/item-model";
+import { EmployeeEntity } from "src/entity/employee.entity";
 
 @Injectable()
 export class MovementationPrismaRepository implements MovementationRepository {
+  private utils = new Utils()
+  private stockLowMessage = this.utils.stockQuantityIsLowThenRequested()
+
   private move_type: { entrada: string } = {
     entrada: 'entrada'
   }
@@ -42,17 +48,15 @@ export class MovementationPrismaRepository implements MovementationRepository {
     }
   }
 
-  async move(userId: string, itemId: string, body: MovementationModel): Promise<ItemEntity> {
+  async move(movementationModel: MovementationModel): Promise<ItemEntity> {
+    const userId = movementationModel.user_id
+    const itemId = movementationModel.item_id
+    const employeeId = movementationModel?.employee_id
+
     try {
       if (!userId || !itemId) throw new NotFoundException('ID do usuário ou do produto inválido')
 
       const employer = await this.prismaService.user.findUnique({
-        where: {
-          id: userId,
-        },
-      })
-
-      const employee = await this.prismaService.employee.findUnique({
         where: {
           id: userId,
         },
@@ -64,18 +68,26 @@ export class MovementationPrismaRepository implements MovementationRepository {
         },
       })
 
-      let newQuantity = 0
-      if (body.move_type !== this.move_type.entrada) {
-        if (body.quantity > item.quantity) {
-          throw new Error('A quantidade do produto em estoque é inferior ao solicitado')
-        } else {
-          newQuantity = item.quantity - body.quantity
-        }
-      } else {
-        newQuantity = item.quantity + body.quantity
+      let newQuantity = this.calculateStockQuantity(movementationModel, item)
+
+      const newMovementation: {
+        move_type: string,
+        user_id: string,
+        quantity: number,
+        updated_at: string,
+        employee_id?: string
+      } = {
+        move_type: movementationModel.move_type,
+        user_id: userId,
+        quantity: movementationModel.quantity,
+        updated_at: new Date().toISOString(),
       }
 
-      if ((employer || employee) && item) {
+      if (employeeId) {
+        newMovementation.employee_id = employeeId
+      }
+
+      if (employer && item) {
         return await this.prismaService.item.update({
           where: {
             id: itemId,
@@ -85,20 +97,28 @@ export class MovementationPrismaRepository implements MovementationRepository {
             updated_at: new Date().toISOString(),
 
             movementations: {
-              create: {
-                move_type: body.move_type,
-                user_id: employer ? employer.id : employee.id,
-                quantity: body.quantity,
-                employee_id: employee?.id,
-                updated_at: new Date().toISOString(),
-              },
+              create: newMovementation,
             }
           },
         })
       }
     } catch (error) {
       console.error(error)
-      throw new Error(error)
+      if (error.message === this.stockLowMessage) {
+        throw new HttpException(this.stockLowMessage, HttpStatus.BAD_REQUEST)
+      } else {
+        throw new Error(error)
+      }
+    }
+  }
+
+  private calculateStockQuantity(movementationModel: MovementationModel, itemModel: ItemEntity): number {
+    if (movementationModel.move_type.toLowerCase() === this.move_type.entrada) return itemModel.quantity + movementationModel.quantity
+
+    if (movementationModel.quantity > itemModel.quantity) {
+      throw new HttpException(this.stockLowMessage, HttpStatus.BAD_REQUEST)
+    } else {
+      return itemModel.quantity - movementationModel.quantity
     }
   }
 
