@@ -99,7 +99,8 @@ export class AppModule {
       'item/*',
       'admin/*',
       'client/*',
-      'movementation/*'
+      'movementation/*',
+      'credit/*'
     );
   }
 }

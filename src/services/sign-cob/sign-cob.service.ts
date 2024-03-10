@@ -10,8 +10,8 @@ import { EfiManagement } from '../../utils/efi-management/efi-management';
 
 @Injectable()
 export class SignCobService {
-  IS_COB = true
-  efiManager = new EfiManagement()
+  IS_COB = true;
+  efiManager = new EfiManagement();
 
   planConfig = {
     method: 'POST',
@@ -22,12 +22,12 @@ export class SignCobService {
   };
 
   constructor(private readonly accountService: UserService) {
-    this.efiManager.getCertificate(env.ROUTE_COB, this.IS_COB)
+    this.efiManager.getCertificate(env.ROUTE_COB, this.IS_COB);
   }
-  
+
   async getPlans(): Promise<any> {
     try {
-      await this.efiManager.getAccessToken()
+      await this.efiManager.getAccessToken();
 
       const plans = await axios({
         method: 'GET',
@@ -44,7 +44,7 @@ export class SignCobService {
 
   async getSpecificPlan(plan_name: string): Promise<any> {
     try {
-      await this.efiManager.getAccessToken()
+      await this.efiManager.getAccessToken();
 
       const plans = await axios({
         method: 'GET',
@@ -73,7 +73,7 @@ export class SignCobService {
     repeats: number;
   }): Promise<any> {
     try {
-      await this.efiManager.getAccessToken()
+      await this.efiManager.getAccessToken();
       this.planConfig.headers = this.efiManager.headersConfig;
       this.planConfig.data = {
         name: plan_config.name,
@@ -93,15 +93,6 @@ export class SignCobService {
     plan_name: string;
     value: number;
     account_id: string;
-    billing_address: {
-      street: string;
-      number: string;
-      neighborhood: string;
-      zipcode: string;
-      city: string;
-      complement: string;
-      state: string;
-    };
   }): Promise<any> {
     try {
       const plan_id = await this.getPlanId(plan_data.plan_name);
@@ -118,47 +109,52 @@ export class SignCobService {
       const accountUser: UserEntity = await this.accountService.getAccountInfo(
         plan_data.account_id
       );
-      const accountBirth = new Date(accountUser.created_at);
-      const customer = {
-        name: accountUser.name,
+      const juridical_info = {
+        corporate_name: accountUser.name,
         cnpj: accountUser.cnpj,
-        email: accountUser.email,
-        birth: `${accountBirth.getUTCFullYear()}-${accountBirth.getUTCMonth()}-${accountBirth.getUTCDate()}`,
-        phone_number: accountUser.phone_number,
       };
 
-      // const billingAddress = {
-      //   street: 'Rua Desembargador João Paes',
-      //   number: '1000',
-      //   neighborhood: 'Boa Viagem',
-      //   zipcode: '51021360',
-      //   city: 'Recife',
-      //   complement: 'apt 603',
-      //   state: 'PE',
-      // };
-
+      // TODO: precisa pegar do usuário, quando criar a conta, endereço e data de nascimento do assinante (obs.: Deve ser maior dd 18).
       const data = {
         items: items,
         payment: {
           credit_card: {
-            trial_days: 7,
-            customer: customer,
-            // payment_token: 'b4b3e7f36c92f487eab7d3d3df6b1899c42dab0e',
+            customer: {
+              phone_number: accountUser.phone_number,
+              email: accountUser.email,
+              birth: '2001-11-08',
+              juridical_person: juridical_info,
+            },
             payment_token: plan_data.payment_token,
-            billing_address: plan_data.billing_address,
+            billing_address: {
+              street: 'Avenida Juscelino Kubitschek',
+              number: '909',
+              neighborhood: 'Bauxita',
+              zipcode: '35400000',
+              city: 'Ouro Preto',
+              complement: '',
+              state: 'MG',
+            },
           },
         },
       };
 
-      const subscriptionsRes = await axios({
+      // const subscriptionsRes = await axios({
+      //   method: 'POST',
+      //   url: url,
+      //   headers: this.efiManager.headersConfig,
+      //   httpsAgent: this.efiManager.agent,
+      //   data: data,
+      // })
+      await axios({
         method: 'POST',
         url: url,
         headers: this.efiManager.headersConfig,
         httpsAgent: this.efiManager.agent,
         data: data,
-      });
-
-      return subscriptionsRes.data;
+      })
+        .then((res) => console.log('response do axios:', res))
+        .catch((err) => console.error('erro do axios:', err.response.data));
     } catch (error) {
       throw new Error(error);
     }

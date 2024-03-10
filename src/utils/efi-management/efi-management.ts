@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { env } from 'process';
 import { Storage } from '@google-cloud/storage';
 

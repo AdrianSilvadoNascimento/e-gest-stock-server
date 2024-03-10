@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 
 import { SignCobService } from '../../services/sign-cob/sign-cob.service';
 
@@ -18,7 +18,7 @@ export class SignCobController {
     return await this.signCobService.getPlans();
   }
 
-  @Get('subscription')
+  @Post('subscription')
   async createSubscription(@Body() plan_body: any): Promise<any> {
     plan_body.plan_name = Subscriptions[plan_body.plan_name];
     const res = await this.signCobService.createSubscriptions(plan_body);
