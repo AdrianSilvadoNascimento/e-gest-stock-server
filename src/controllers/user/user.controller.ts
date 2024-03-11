@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { EmployeeModel } from '../../dtos/employee-model';
@@ -29,6 +30,14 @@ export class UserController {
       phone_number: body.phone_number,
     };
     return await this.userService.createUser(newUserModel);
+  }
+
+  @Post('update-user/:id')
+  async updateUserAccount(
+    @Param('id') user_id: string,
+    @Body() body: UserModel
+  ): Promise<UserEntity> {
+    return await this.userService.updateUserAccount(user_id, body);
   }
 
   @Post('login-user')

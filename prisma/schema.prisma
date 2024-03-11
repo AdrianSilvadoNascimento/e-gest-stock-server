@@ -31,27 +31,46 @@ model Item {
 }
 
 model User {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  name             String    @default("")
-  email            String    @unique @default("")
-  confirmed_email  Boolean   @default(false)
-  password         String    @default("")
-  cnpj             String    @unique @default("")
-  phone_number     String    @default("")
-  is_assinant      Boolean   @default(false)
-  is_trial         Boolean   @default(false)
-  type             Int       @default(0)
-  created_at       DateTime  @default(now())
-  updated_at       DateTime?
-  expiration_trial DateTime?
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String    @default("")
+  email             String    @unique @default("")
+  confirmed_email   Boolean   @default(false)
+  password          String    @default("")
+  cnpj              String    @unique @default("")
+  phone_number      String    @default("")
+  is_assinant       Boolean   @default(false)
+  is_trial          Boolean   @default(false)
+  type              Int       @default(0)
+  subscription_plan String?
+  subscription_id   String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime?
+  expiration_trial  DateTime?
 
   item          Item[]
   movemetations Movementation[]
   clients       Client[]
   employee      Employee[]
   categories    Category[]
+  user_address  UserAddress[]
 
   @@map("users")
+}
+
+model UserAddress {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  street       String
+  house_number Int
+  neighborhood String
+  postal_code  String
+  country      String
+  created_at   DateTime  @default(now())
+  updated_at   DateTime?
+
+  user    User?   @relation(fields: [user_id], references: [id])
+  user_id String? @unique @db.ObjectId
+
+  @@map("userAddresses")
 }
 
 model Movementation {

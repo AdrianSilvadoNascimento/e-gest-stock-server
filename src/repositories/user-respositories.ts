@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+import { UserModel } from 'src/dtos/user-model';
 import { EmployeeEntity } from '../entity/employee.entity';
 import { UserEntity } from '../entity/user.entity';
 
@@ -20,6 +22,11 @@ export abstract class UserRepository {
     type: number,
     employerEmail: string
   ): Promise<EmployeeEntity>;
+
+  abstract updateUserAccount(
+    user_id: string,
+    account_info: UserModel
+  ): Promise<UserEntity>;
 
   abstract loginUser(email: string, password: string): Promise<any>;
 

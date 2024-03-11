@@ -1,7 +1,9 @@
+/* eslint-disable prettier/prettier */
 import { ItemEntity } from './item.entity';
 import { ClientEntity } from './client.entity';
 import { MovementationEntity } from './movementation.entity';
 import { EmployeeEntity } from './employee.entity';
+import { UserAddressEntity } from './user-address-entity';
 
 export class UserEntity {
   name: string;
@@ -16,10 +18,13 @@ export class UserEntity {
   is_trial: boolean;
   expiration_trial: Date;
 
+  subscription_plan?: string;
+  subscription_id?: string;
   item?: ItemEntity[];
   movementations?: MovementationEntity[];
   clients?: ClientEntity[];
   employee?: EmployeeEntity[];
+  user_address?: UserAddressEntity[];
 
   created_at: Date;
   updated_at: Date;

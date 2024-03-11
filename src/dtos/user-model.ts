@@ -1,9 +1,11 @@
+/* eslint-disable prettier/prettier */
 import { IsNotEmpty } from 'class-validator';
 
 import { ItemModel } from './item-model';
 import { MovementationModel } from './movementation-model';
 import { EmployeeModel } from './employee-model';
 import { ClientModel } from './client-model';
+import { UserAddressModel } from './user-address-model';
 
 export class UserModel {
   @IsNotEmpty()
@@ -25,8 +27,11 @@ export class UserModel {
   is_trial: boolean;
   expiration_trial: Date;
 
+  subscription_plan?: string;
+  subscription_id?: string;
   item?: ItemModel[];
   movementations?: MovementationModel[];
   clients?: ClientModel[];
   employee?: EmployeeModel[];
+  user_address?: UserAddressModel[];
 }

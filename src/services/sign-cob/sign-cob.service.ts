@@ -122,7 +122,6 @@ export class SignCobService {
             customer: {
               phone_number: accountUser.phone_number,
               email: accountUser.email,
-              birth: '2001-11-08',
               juridical_person: juridical_info,
             },
             payment_token: plan_data.payment_token,

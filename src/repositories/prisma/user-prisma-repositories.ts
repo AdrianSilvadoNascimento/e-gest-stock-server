@@ -14,6 +14,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { UserRepository } from '../user-respositories';
 import { UserEntity } from '../../entity/user.entity';
 import { EmployeeEntity } from '../../entity/employee.entity';
+import { UserModel } from 'src/dtos/user-model';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
@@ -111,6 +112,30 @@ export class UserPrismaRepository implements UserRepository {
         } else {
           throw new NotImplementedException('Funcionário já registrado');
         }
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
+  async updateUserAccount(user_id: string, account_info: UserModel): Promise<UserEntity> {
+    try {
+      const user = await this.getAccountInfo(user_id)
+      
+      if (user) {
+        return await this.prisma.user.update({
+          where: {
+            id: user_id,
+          }, data: {
+            is_assinant: account_info.is_assinant,
+            is_trial: account_info.is_trial,
+            confirmed_email: account_info.confirmed_email,
+            email: account_info.email,
+            subscription_id: account_info.subscription_id,
+            subscription_plan: account_info.subscription_plan,
+          },
+        })
       }
     } catch (error) {
       console.error(error);
