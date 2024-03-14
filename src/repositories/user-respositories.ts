@@ -1,7 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { UserModel } from 'src/dtos/user-model';
+import { UserModel } from '../dtos/user-model';
 import { EmployeeEntity } from '../entity/employee.entity';
 import { UserEntity } from '../entity/user.entity';
+import { UserAddressEntity } from '../entity/user-address-entity';
+import { UserAddressModel } from '../dtos/user-address-model';
 
 export abstract class UserRepository {
   abstract createUser(newUserModel: {
@@ -22,6 +24,11 @@ export abstract class UserRepository {
     type: number,
     employerEmail: string
   ): Promise<EmployeeEntity>;
+
+  abstract registerAddress(
+    user_id: string,
+    account_info: UserAddressModel
+  ): Promise<UserAddressEntity>;
 
   abstract updateUserAccount(
     user_id: string,

@@ -3,10 +3,12 @@ import { UserEntity } from './user.entity';
 
 export class UserAddressEntity {
   street: string;
-  house_number: number;
+  house_number: string;
   neighborhood: string;
   postal_code: string;
   country: string;
+  complement: string;
+  state: string;
   user_id: string;
   user?: UserEntity;
 

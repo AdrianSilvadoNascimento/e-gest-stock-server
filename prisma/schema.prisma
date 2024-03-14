@@ -60,15 +60,17 @@ model User {
 model UserAddress {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   street       String
-  house_number Int
+  house_number String
   neighborhood String
   postal_code  String
+  state        String
+  complement   String
   country      String
   created_at   DateTime  @default(now())
   updated_at   DateTime?
 
   user    User?   @relation(fields: [user_id], references: [id])
-  user_id String? @unique @db.ObjectId
+  user_id String? @db.ObjectId
 
   @@map("userAddresses")
 }

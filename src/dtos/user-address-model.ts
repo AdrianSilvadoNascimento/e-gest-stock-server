@@ -6,7 +6,7 @@ export class UserAddressModel {
   @IsNotEmpty()
   street: string;
   @IsNotEmpty()
-  house_number: number;
+  house_number: string;
   @IsNotEmpty()
   neighborhood: string;
   @IsNotEmpty()
@@ -14,6 +14,9 @@ export class UserAddressModel {
   @IsNotEmpty()
   country: string;
   @IsNotEmpty()
+  state: string;
+  @IsNotEmpty()
+  complement: string;
   user_id: string;
   user?: UserModel;
 }

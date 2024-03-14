@@ -5,6 +5,8 @@ import { EmployeeModel } from '../../dtos/employee-model';
 import { UserModel } from '../../dtos/user-model';
 import { UserService } from '../../services/user/user.service';
 import { UserEntity } from '../../entity/user.entity';
+import { UserAddressModel } from 'src/dtos/user-address-model';
+import { UserAddressEntity } from 'src/entity/user-address-entity';
 
 @Controller('user')
 export class UserController {
@@ -30,6 +32,14 @@ export class UserController {
       phone_number: body.phone_number,
     };
     return await this.userService.createUser(newUserModel);
+  }
+
+  @Post('register-address/:id')
+  async registerAddress(
+    @Param('id') userId: string,
+    @Body() userAddress: UserAddressModel
+  ): Promise<UserAddressEntity> {
+    return await this.userService.registerAddress(userId, userAddress);
   }
 
   @Post('update-user/:id')

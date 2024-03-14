@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../repositories/user-respositories';
 import { UserEntity } from '../../entity/user.entity';
 import { UserModel } from 'src/dtos/user-model';
+import { UserAddressModel } from 'src/dtos/user-address-model';
+import { UserAddressEntity } from 'src/entity/user-address-entity';
 
 @Injectable()
 export class UserService {
@@ -41,6 +43,13 @@ export class UserService {
     phone_number: string;
   }): Promise<any> {
     return await this.userRepository.createUser(newUserModel);
+  }
+
+  async registerAddress(
+    userId: string,
+    userAddress: UserAddressModel
+  ): Promise<UserAddressEntity> {
+    return await this.userRepository.registerAddress(userId, userAddress);
   }
 
   async updateUserAccount(

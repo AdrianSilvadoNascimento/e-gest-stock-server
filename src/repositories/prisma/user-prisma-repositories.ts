@@ -14,7 +14,9 @@ import { PrismaService } from '../../database/prisma.service';
 import { UserRepository } from '../user-respositories';
 import { UserEntity } from '../../entity/user.entity';
 import { EmployeeEntity } from '../../entity/employee.entity';
-import { UserModel } from 'src/dtos/user-model';
+import { UserModel } from '../../dtos/user-model';
+import { UserAddressModel } from '../../dtos/user-address-model';
+import { UserAddressEntity } from '../../entity/user-address-entity';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
@@ -119,15 +121,19 @@ export class UserPrismaRepository implements UserRepository {
     }
   }
 
-  async updateUserAccount(user_id: string, account_info: UserModel): Promise<UserEntity> {
+  async updateUserAccount(
+    user_id: string,
+    account_info: UserModel
+  ): Promise<UserEntity> {
     try {
-      const user = await this.getAccountInfo(user_id)
-      
+      const user = await this.getAccountInfo(user_id);
+
       if (user) {
         return await this.prisma.user.update({
           where: {
             id: user_id,
-          }, data: {
+          },
+          data: {
             is_assinant: account_info.is_assinant,
             is_trial: account_info.is_trial,
             confirmed_email: account_info.confirmed_email,
@@ -135,6 +141,33 @@ export class UserPrismaRepository implements UserRepository {
             subscription_id: account_info.subscription_id,
             subscription_plan: account_info.subscription_plan,
           },
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
+  async registerAddress(
+    user_id: string,
+    userAddress: UserAddressModel
+  ): Promise<UserAddressEntity> {
+    try {
+      const user = await this.getAccountInfo(user_id);
+
+      if (user) {
+        return await this.prisma.userAddress.create({
+          data: {
+            user_id: user_id,
+            country: userAddress.country,
+            house_number: userAddress.house_number,
+            neighborhood: userAddress.neighborhood,
+            postal_code: userAddress.postal_code,
+            street: userAddress.street,
+            complement: userAddress.complement,
+            state: userAddress.state,
+          }
         })
       }
     } catch (error) {
@@ -151,13 +184,16 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      const employer = await this.prisma.user.findUnique({
+      const userAccount = await this.prisma.user.findUnique({
         where: {
           email,
         },
+        include: {
+          user_address: true,
+        },
       });
 
-      const user = employee ? employee : employer;
+      const user = employee ? employee : userAccount;
 
       if (!user) {
         return new NotAcceptableException(
@@ -175,7 +211,7 @@ export class UserPrismaRepository implements UserRepository {
             {
               user: user.name,
               email: user.email,
-              userId: employer ? employer.id : employee.user_id,
+              userId: userAccount ? userAccount.id : employee.user_id,
               employeeId: employee ? employee.id : '',
             },
             env.SECRET_MESSAGE,
@@ -186,14 +222,15 @@ export class UserPrismaRepository implements UserRepository {
 
           return {
             token,
-            userId: employer ? employer.id : employee.user_id,
+            userId: userAccount ? userAccount.id : employee.user_id,
             employeeId: employee ? employee.id : '',
             expiresIn: 3600,
             user: user.name,
             type: user.type,
-            expiration_trial: employer.expiration_trial,
-            is_assinant: employer.is_assinant,
-            is_trial: employer.is_trial,
+            expiration_trial: userAccount.expiration_trial,
+            is_assinant: userAccount.is_assinant,
+            is_trial: userAccount.is_trial,
+            has_address: userAccount.user_address?.length > 0,
           };
         }
       }
@@ -223,6 +260,10 @@ export class UserPrismaRepository implements UserRepository {
       const user = await this.prisma.user.findUnique({
         where: {
           id: userId,
+        },
+        include: {
+          user_address: true,
+          item: true,
         },
       });
 
