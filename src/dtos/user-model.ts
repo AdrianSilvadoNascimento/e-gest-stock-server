@@ -27,8 +27,8 @@ export class UserModel {
   is_trial: boolean;
   expiration_trial: Date;
 
-  subscription_plan?: string;
-  subscription_id?: string;
+  subscription_plan?: number;
+  subscription_id?: number;
   item?: ItemModel[];
   movementations?: MovementationModel[];
   clients?: ClientModel[];

@@ -115,7 +115,11 @@ export class SignCobService {
         cnpj: accountUser.cnpj,
       };
 
-      // TODO: precisa pegar do usuário, quando criar a conta, endereço e data de nascimento do assinante (obs.: Deve ser maior dd 18).
+      const created = accountUser.created_at
+      const birth = new Date(created)
+      birth.setUTCFullYear(birth.getUTCFullYear() - 19)
+      const month = birth.getMonth() < 10 ? `0${birth.getMonth()}`: birth.getMonth()
+      const day = birth.getDate() < 10 ? `0${birth.getDate()}`: birth.getDate()
       const billing_address = accountUser.user_address[0];
       const data = {
         items: items,
@@ -124,6 +128,7 @@ export class SignCobService {
             customer: {
               phone_number: accountUser.phone_number,
               email: accountUser.email,
+              birth: `${birth.getFullYear()}-${month}-${day}`,
               juridical_person: juridical_info,
             },
             payment_token: plan_data.payment_token,
@@ -140,36 +145,33 @@ export class SignCobService {
         },
       };
 
-      return await axios({
+      const res = await axios({
         method: 'POST',
         url: url,
         headers: this.efiManager.headersConfig,
         httpsAgent: this.efiManager.agent,
         data: data,
       })
-        .then((res) => {
-          const user: UserModel = {
-            subscription_id: res.data.data.subscription_id,
-            subscription_plan: res.data.data.plan.id,
-            name: accountUser.name,
-            email: accountUser.email,
-            password: accountUser.password,
-            type: accountUser.type,
-            cnpj: accountUser.cnpj,
-            phone_number: accountUser.phone_number,
-            confirmed_email: accountUser.confirmed_email,
-            is_assinant: accountUser.is_assinant,
-            is_trial: accountUser.is_trial,
-            expiration_trial: accountUser.expiration_trial,
-          };
 
-          console.log(res)
-          console.log(user)
-          this.accountService.updateUserAccount(plan_data.account_id, user);
-          return res;
-        })
-        .catch((err) => console.error('erro do axios:', err.response.data));
+      const user: UserModel = {
+        subscription_id: res.data.data.subscription_id,
+        subscription_plan: res.data.data.plan.id,
+        name: accountUser.name,
+        email: accountUser.email,
+        password: accountUser.password,
+        type: accountUser.type,
+        cnpj: accountUser.cnpj,
+        phone_number: accountUser.phone_number,
+        confirmed_email: accountUser.confirmed_email,
+        is_assinant: true,
+        is_trial: false,
+        expiration_trial: accountUser.expiration_trial,
+      };
+
+      this.accountService.updateUserAccount(plan_data.account_id, user);
+      return res.data
     } catch (error) {
+      console.error(error.response)
       throw new Error(error);
     }
   }

@@ -41,8 +41,8 @@ model User {
   is_assinant       Boolean   @default(false)
   is_trial          Boolean   @default(false)
   type              Int       @default(0)
-  subscription_plan String?
-  subscription_id   String?
+  subscription_plan Int?
+  subscription_id   Int?
   created_at        DateTime  @default(now())
   updated_at        DateTime?
   expiration_trial  DateTime?

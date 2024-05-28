@@ -18,8 +18,8 @@ export class UserEntity {
   is_trial: boolean;
   expiration_trial: Date;
 
-  subscription_plan?: string;
-  subscription_id?: string;
+  subscription_plan?: number;
+  subscription_id?: number;
   item?: ItemEntity[];
   movementations?: MovementationEntity[];
   clients?: ClientEntity[];
